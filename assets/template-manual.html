@@ -1,0 +1,378 @@
+<title>photosort の説明書</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=IBM+Plex+Mono:wght@500&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#FFFFFF; --surface:#FFFFFF; --surface-2:#F1F4F7; --ink:#0F1A26; --muted:#4F5B69; --line:#D5DCE3; --edge:#4A5664;
+  --navy:#1E3A5C; --navy-soft:#DDE6F0; --on-navy:#FFFFFF;
+  --grow:#12775D; --grow-soft:#D8EFE7;
+  --false:#B5322C; --false-soft:#F8E3E1;
+  --amber:#B97C06; --amber-soft:#FBEFD3;
+  --term:#14202C; --term-ink:#E6EDF3; --term-muted:#8B9AAB; --term-ok:#5FD3A5; --term-err:#FF8A80;
+  --f-display:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+  --f-body:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.7;margin:0;padding:0 20px}
+.wrap{max-width:1280px;margin:0 auto;padding-block:40px 72px;display:flex;flex-direction:column;gap:64px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.35}
+h1{font-size:clamp(28px,4.2vw,42px);font-weight:900}
+h2{font-size:clamp(22px,2.6vw,28px);font-weight:900}
+h3{font-size:17px;font-weight:700}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;color:var(--muted)}
+section{display:flex;flex-direction:column;gap:18px}
+.sec-head{display:flex;flex-direction:column;gap:6px;max-width:72ch}
+.sec-head p{color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tag{font-size:12.5px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.tag.warn{border-color:var(--amber);background:var(--amber-soft);color:var(--ink)}
+.tag.danger{border-color:var(--false);background:var(--false-soft);color:var(--false);font-weight:700}
+
+/* what-it-is diagram */
+.hero-fig{border:1.5px solid var(--line);border-radius:16px;padding:16px;overflow-x:auto}
+.hero-fig svg{display:block;width:100%;min-width:640px;height:auto}
+
+/* code + copy */
+.code{position:relative;background:var(--term);color:var(--term-ink);border-radius:12px;font-family:var(--f-mono);font-size:14.5px;padding:12px 64px 12px 14px;overflow-x:auto;white-space:pre}
+.code::before{content:"$ ";color:var(--term-muted)}
+.copy{position:absolute;top:6px;right:6px;min-height:34px;padding:0 10px;font-size:12.5px;border-radius:8px;background:#26384A;border:1px solid #3A4F64;color:var(--term-ink)}
+.copy:hover{border-color:var(--term-ok)}
+.copy.done{color:var(--term-ok)}
+
+/* OS tabs */
+.ostabs{display:flex;gap:6px;flex-wrap:wrap}
+.ostabs button{min-height:40px;font-size:14px;padding:0 14px}
+.ostabs button[aria-selected="true"]{background:var(--navy);border-color:var(--navy);color:var(--on-navy)}
+
+/* stage */
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:16px;align-items:start}
+.card{border:2.5px solid var(--navy);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0;background:var(--surface)}
+.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface-2);border-radius:12px;padding:10px}
+button{font:inherit;cursor:pointer;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font-size:17px;font-weight:700;min-height:52px;padding:0 22px}
+button:hover{border-color:var(--navy)}
+button:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+button.primary{background:var(--navy);border-color:var(--navy);color:var(--on-navy);min-width:150px;font-size:19px}
+button:disabled{opacity:.4;cursor:default}
+.scrub{flex:1 1 260px;min-width:0;display:flex;align-items:center;gap:12px;height:52px;cursor:pointer;touch-action:none;padding:0 4px}
+.scrub .rail{position:relative;flex:1;height:10px;border-radius:999px;background:var(--line)}
+.scrub .fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:999px;background:var(--amber)}
+.scrub .knob{position:absolute;top:50%;left:0;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:var(--surface);border:4px solid var(--amber);box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.scrub .time{font-family:var(--f-mono);font-size:14px;color:var(--muted);white-space:nowrap}
+.caption{font-size:17px;font-weight:700;min-height:1.7em}
+.caption .ok{color:var(--grow)}
+.gscroll{overflow-x:auto}
+.gscroll svg{display:block;width:100%;min-width:720px;height:auto}
+.hint{display:none;font-size:12.5px;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:24px;height:14px;border-radius:4px}
+.sw.idle{border:2px solid var(--line)} .sw.run{border:2px solid var(--amber);background:var(--amber-soft)} .sw.done{border:2px solid var(--grow);background:var(--grow-soft)}
+
+.term{border:2px solid var(--ink);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 14px 34px rgba(15,26,38,.14);position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);background:var(--term)}
+.term-top{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#0B141D;color:var(--term-muted);font-family:var(--f-mono);font-size:12.5px}
+.term-top i{width:11px;height:11px;border-radius:50%;background:#3A4F64;display:inline-block}
+.term-body{padding:14px;height:460px;overflow-y:auto;font-family:var(--f-mono);font-size:14px;line-height:1.65;color:var(--term-ink);scroll-behavior:smooth;white-space:pre-wrap;word-break:break-all}
+.ln{animation:pop .3s ease both}
+.ln.cmd::before{content:"$ ";color:var(--term-muted)}
+.ln.cmd{margin-top:8px;font-weight:500}
+.ln.out{color:var(--term-muted)}
+.ln.ok{color:var(--term-ok)}
+.ln.err{color:var(--term-err)}
+.ln.note{color:var(--term-muted);font-family:var(--f-body);font-size:12.5px}
+@keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* svg graph */
+svg text{font-family:var(--f-body)}
+.nd rect.b{stroke-width:2.4}
+.nd.idle rect.b{fill:var(--surface);stroke:var(--line)} .nd.idle text{fill:var(--muted)}
+.nd.run rect.b{fill:var(--amber-soft);stroke:var(--amber);stroke-width:4}
+.nd.done rect.b{fill:var(--grow-soft);stroke:var(--grow)}
+.nd text.t{font-size:17px;font-weight:700;fill:var(--ink)}
+.nd text.s{font-size:13px;font-family:var(--f-mono)}
+.nd.run text.s{fill:var(--amber)} .nd.done text.s{fill:var(--grow)} .nd.idle text.s{fill:var(--muted)}
+.nd.new{animation:npop .5s cubic-bezier(.3,1.4,.5,1) both;transform-box:fill-box;transform-origin:center}
+.nd rect.halo{fill:none;stroke:none}
+.nd.run rect.halo{stroke:var(--amber);stroke-width:4;animation:halo 1.4s ease-in-out infinite}
+@keyframes npop{from{transform:scale(.92)}to{transform:none}}
+@keyframes halo{0%,100%{opacity:.2}50%{opacity:1}}
+.eg path{fill:none;stroke-width:2.6;stroke:var(--line)}
+.eg.done path{stroke:var(--grow)}
+.eg.run path{stroke:var(--amber);stroke-width:5;stroke-dasharray:9 6}
+.ah-idle{fill:var(--line)} .ah-run{fill:var(--amber)} .ah-done{fill:var(--grow)}
+
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.fc{border:1.5px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.fc svg{width:100%;height:120px;display:block}
+.fc .n{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.fc p{font-size:14px;color:var(--muted)}
+.pills{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pl{font-size:13.5px;font-weight:700;padding:3px 12px;border-radius:999px;border:2px solid var(--line)}
+.pl.n{border-color:var(--navy);color:var(--navy)} .pl.g{border-color:var(--grow);color:var(--grow)} .pl.r{border-color:var(--false);color:var(--false);border-style:dashed}
+
+/* trouble chain */
+.chain{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:stretch}
+.ch{border:2px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14.5px;display:flex;flex-direction:column;gap:4px;position:relative}
+.ch b{font-size:12px;color:var(--muted)}
+.ch code{font-family:var(--f-mono);font-size:13px;word-break:break-all}
+.ch.c1{border-color:var(--false);background:var(--false-soft)} .ch.c2{border-color:var(--navy)} .ch.c3{border-color:var(--amber)} .ch.c4{border-color:var(--grow);background:var(--grow-soft)}
+.ch:not(:last-child)::after{content:"→";position:absolute;right:-12px;top:50%;transform:translate(50%,-50%);color:var(--edge);font-weight:700}
+
+/* table */
+.tbl{overflow-x:auto;border:1.5px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:560px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--surface-2);font-size:13px;color:var(--muted)}
+td code{font-family:var(--f-mono);font-size:13.5px}
+tr:last-child td{border-bottom:none}
+details{font-size:15px;border:1.5px solid var(--line);border-radius:12px;padding:12px 16px}
+summary{cursor:pointer;font-weight:700}
+details p{margin-top:8px;color:var(--muted)}
+.faq{display:flex;flex-direction:column;gap:8px}
+.next{display:flex;flex-wrap:wrap;gap:10px}
+.next a{display:inline-flex;align-items:center;min-height:52px;padding:0 20px;border-radius:12px;border:2px solid var(--grow);color:var(--grow);font-weight:700;text-decoration:none}
+.next a:hover{background:var(--grow-soft)}
+
+@media (max-width:1060px){.stage{grid-template-columns:minmax(0,1fr)}.term{position:static}.hint{display:block}}
+@media (max-width:760px){.chain{grid-template-columns:1fr}.ch:not(:last-child)::after{content:"↓";right:50%;top:auto;bottom:-14px;transform:translate(50%,50%)}}
+@media (max-width:700px){
+  body{padding:0 16px;font-size:15px}
+  .wrap{gap:44px;padding-block:24px 48px}
+  .bar button{flex:1 1 0;padding:0 10px;min-height:48px;font-size:15px}
+  .bar button.primary{min-width:0;font-size:16px}
+  .scrub{flex:1 1 100%;order:3;height:40px}
+  .term-body{height:380px}
+}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header style="display:flex;flex-direction:column;gap:16px">
+  <div class="eyebrow">photosort ｜ README から作った説明書</div>
+  <h1>散らかった写真を、<br>撮影日ごとのフォルダへ</h1>
+  <div class="tags"><span class="tag warn">例：架空のツール</span><span class="tag">コマンド・出力はすべて説明用</span></div>
+</header>
+
+<section>
+  <div class="sec-head"><div class="eyebrow">これは何か</div><h2>入れたフォルダが、年／月に分かれる</h2></div>
+  <div class="hero-fig">
+    <svg viewBox="0 0 900 220" role="img" aria-label="ばらばらの写真が photosort を通って 年/月 のフォルダに分かれる">
+      <defs><marker id="ha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto"><path d="M0,0L10,5L0,10z" fill="#4A5664"/></marker></defs>
+      <g font-family="BIZ UDPGothic, sans-serif" font-weight="700">
+        <rect x="20" y="40" width="230" height="140" rx="14" fill="#fff" stroke="#1E3A5C" stroke-width="2.4"/>
+        <text x="135" y="70" text-anchor="middle" font-size="17" fill="#0F1A26">inbox/</text>
+        <g fill="#DDE6F0" stroke="#1E3A5C" stroke-width="1.6">
+          <rect x="44" y="88" width="40" height="30" rx="4" transform="rotate(-8 64 103)"/><rect x="98" y="96" width="40" height="30" rx="4" transform="rotate(6 118 111)"/><rect x="152" y="86" width="40" height="30" rx="4" transform="rotate(-4 172 101)"/>
+          <rect x="70" y="132" width="40" height="30" rx="4" transform="rotate(10 90 147)"/><rect x="128" y="136" width="40" height="30" rx="4" transform="rotate(-6 148 151)"/><rect x="186" y="128" width="40" height="30" rx="4" transform="rotate(4 206 143)"/>
+        </g>
+        <path d="M262 110 L352 110" stroke="#4A5664" stroke-width="2.6" marker-end="url(#ha)"/>
+        <rect x="362" y="70" width="190" height="80" rx="14" fill="#FBEFD3" stroke="#B97C06" stroke-width="3"/>
+        <text x="457" y="106" text-anchor="middle" font-size="18" fill="#0F1A26">photosort</text>
+        <text x="457" y="130" text-anchor="middle" font-size="14" fill="#B97C06">撮影日を読む</text>
+        <path d="M564 110 L624 60 M564 110 L624 110 M564 110 L624 160" stroke="#4A5664" stroke-width="2.6" fill="none" marker-end="url(#ha)"/>
+        <g font-size="16" fill="#0F1A26">
+          <rect x="634" y="38" width="240" height="44" rx="10" fill="#D8EFE7" stroke="#12775D" stroke-width="2.4"/><text x="654" y="66">📁 2026/03/　42枚</text>
+          <rect x="634" y="88" width="240" height="44" rx="10" fill="#D8EFE7" stroke="#12775D" stroke-width="2.4"/><text x="654" y="116">📁 2026/04/　71枚</text>
+          <rect x="634" y="138" width="240" height="44" rx="10" fill="#D8EFE7" stroke="#12775D" stroke-width="2.4"/><text x="654" y="166">📁 2026/05/　15枚</text>
+        </g>
+      </g>
+    </svg>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><div class="eyebrow">5分で動かす</div><h2>入れて、試して、本番の3回打つだけ</h2></div>
+  <div class="ostabs" role="tablist" aria-label="OS を選ぶ">
+    <button role="tab" aria-selected="true" data-os="mac">macOS</button><button role="tab" aria-selected="false" data-os="win">Windows</button><button role="tab" aria-selected="false" data-os="linux">Linux</button>
+  </div>
+  <div class="code" id="install-code">npm install -g photosort</div>
+  <div class="stage">
+    <div class="card">
+      <div class="bar">
+        <button id="q-prev" aria-label="前へ">◀ 前へ</button>
+        <button id="q-play" class="primary">▶ 再生</button>
+        <button id="q-next" aria-label="次へ">次へ ▶</button>
+        <div id="q-scrub"></div>
+      </div>
+      <div class="caption" id="q-cap" aria-live="polite"></div>
+      <div class="gscroll" id="gscroll"><svg id="qg" viewBox="0 0 900 300" role="img" aria-label="インストールから整理完了までの流れ。いま実行中の段階が光る"></svg></div>
+      <div class="hint">← 横にスクロールできます →</div>
+      <div class="legend"><span><span class="sw idle"></span>まだ</span><span><span class="sw run"></span>いま実行中</span><span><span class="sw done"></span>完了</span></div>
+    </div>
+    <aside class="term" aria-label="ターミナルの画面（例）">
+      <div class="term-top"><i></i><i></i><i></i><span>ターミナル（出力は例）</span></div>
+      <div class="term-body" id="q-term"></div>
+    </aside>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><div class="eyebrow">覚えるルールは3つ</div><h2>壊さないために、これだけ知っておく</h2></div>
+  <div class="cards">
+    <div class="fc"><span class="n">1</span><h3>まず --dry-run で確かめる</h3>
+      <svg viewBox="0 0 260 120" aria-hidden="true"><rect x="10" y="30" width="90" height="60" rx="10" fill="#FBEFD3" stroke="#B97C06" stroke-width="2.4" stroke-dasharray="7 4"/><text x="55" y="66" text-anchor="middle" font-size="15" font-weight="700" fill="#B97C06">予定だけ</text><path d="M108 60 L150 60" stroke="#4A5664" stroke-width="2.6"/><path d="M150 54 L160 60 L150 66z" fill="#4A5664"/><rect x="166" y="30" width="84" height="60" rx="10" fill="#D8EFE7" stroke="#12775D" stroke-width="2.4"/><text x="208" y="66" text-anchor="middle" font-size="15" font-weight="700" fill="#12775D">本番</text></svg>
+      <div class="pills"><span class="pl n">ファイルは動かない</span></div></div>
+    <div class="fc"><span class="n">2</span><h3>写真はコピーでなく移動される</h3>
+      <svg viewBox="0 0 260 120" aria-hidden="true"><rect x="10" y="30" width="90" height="60" rx="10" fill="#fff" stroke="#B5322C" stroke-width="2.4" stroke-dasharray="7 4"/><text x="55" y="66" text-anchor="middle" font-size="15" font-weight="700" fill="#B5322C">inbox/ 空</text><path d="M108 60 L150 60" stroke="#4A5664" stroke-width="2.6"/><path d="M150 54 L160 60 L150 66z" fill="#4A5664"/><rect x="166" y="30" width="84" height="60" rx="10" fill="#D8EFE7" stroke="#12775D" stroke-width="2.4"/><text x="208" y="66" text-anchor="middle" font-size="15" font-weight="700" fill="#12775D">年/月/</text></svg>
+      <div class="pills"><span class="pl r">元の場所から消える</span><span class="pl g">--copy で残る</span></div></div>
+    <div class="fc"><span class="n">3</span><h3>undo で直前の1回を戻せる</h3>
+      <svg viewBox="0 0 260 120" aria-hidden="true"><rect x="10" y="30" width="90" height="60" rx="10" fill="#fff" stroke="#1E3A5C" stroke-width="2.4"/><text x="55" y="66" text-anchor="middle" font-size="15" font-weight="700" fill="#1E3A5C">inbox/</text><rect x="166" y="30" width="84" height="60" rx="10" fill="#D8EFE7" stroke="#12775D" stroke-width="2.4"/><text x="208" y="66" text-anchor="middle" font-size="15" font-weight="700" fill="#12775D">年/月/</text><path d="M160 46 C135 14 125 14 108 40" stroke="#B97C06" stroke-width="2.6" fill="none"/><path d="M104 32 L106 44 L116 38z" fill="#B97C06"/><text x="132" y="108" text-anchor="middle" font-size="14" font-weight="700" fill="#B97C06">undo</text></svg>
+      <div class="pills"><span class="pl n">戻せるのは1回分</span></div></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><div class="eyebrow">よくある使い方</div><h2>やりたいことから選ぶ</h2></div>
+  <div class="cards">
+    <div class="fc"><h3>日ごとに分けたい</h3><div class="code">photosort &lt;フォルダ&gt; --by day</div><div class="pills"><span class="pl g">2026/04/12/</span></div></div>
+    <div class="fc"><h3>元の写真も残したい</h3><div class="code">photosort &lt;フォルダ&gt; --copy</div><div class="pills"><span class="pl g">inbox/ はそのまま</span></div></div>
+    <div class="fc"><h3>別の場所へまとめたい</h3><div class="code">photosort &lt;フォルダ&gt; --to ~/Photos</div><div class="pills"><span class="pl g">~/Photos/2026/04/</span></div></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><div class="eyebrow">困ったとき</div><h2>エラーの文言から、対処まで1本道</h2></div>
+  <div class="chain">
+    <div class="ch c1"><b>症状</b><code>撮影日が読めません: 12 枚</code></div>
+    <div class="ch c2"><b>原因</b>写真に撮影日の情報（EXIF）がない</div>
+    <div class="ch c3"><b>確かめ方</b>スクリーンショットや編集済みの画像か</div>
+    <div class="ch c4"><b>対処</b><code>--fallback mtime</code> で更新日を使う</div>
+  </div>
+  <div class="chain">
+    <div class="ch c1"><b>症状</b><code>command not found: photosort</code></div>
+    <div class="ch c2"><b>原因</b>インストールが終わっていない</div>
+    <div class="ch c3"><b>確かめ方</b><code>npm ls -g photosort</code></div>
+    <div class="ch c4"><b>対処</b>上の「5分で動かす」を最初から</div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><div class="eyebrow">設定一覧</div><h2>オプションは、変えたいときだけ</h2></div>
+  <div class="tbl"><table>
+    <thead><tr><th>オプション</th><th>初期値</th><th>変わること</th></tr></thead>
+    <tbody>
+      <tr><td><code>--dry-run</code></td><td>なし</td><td>移動の予定だけ表示する</td></tr>
+      <tr><td><code>--by</code></td><td><code>month</code></td><td><code>year</code> / <code>month</code> / <code>day</code> で分ける細かさ</td></tr>
+      <tr><td><code>--copy</code></td><td>なし</td><td>移動せずコピーする</td></tr>
+      <tr><td><code>--to</code></td><td>入力と同じ場所</td><td>整理先のフォルダ</td></tr>
+      <tr><td><code>--fallback</code></td><td><code>skip</code></td><td>撮影日がない写真を <code>mtime</code>（更新日）で分ける</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <div class="sec-head"><div class="eyebrow">用語と FAQ</div><h2>引っかかったら、ここだけ開く</h2></div>
+  <div class="faq">
+    <details><summary>EXIF とは？</summary><p>カメラが写真に書き込む情報。撮影日時はここから読む。</p></details>
+    <details><summary>同じ名前の写真があったら？</summary><p>上書きせず、名前の末尾に -1, -2 を付けて置く。</p></details>
+    <details><summary>動画も分けられる？</summary><p>この例では写真（.jpg / .heic）のみ。動画は動かさない。</p></details>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><div class="eyebrow">次の一歩</div><h2>もっと知りたくなったら</h2></div>
+  <div class="next"><a href="#" onclick="return false">公式ドキュメント（例）</a><a href="#" onclick="return false">リポジトリ（例）</a><a href="#" onclick="return false">質問する場所（例）</a></div>
+</section>
+
+</div>
+
+<script>
+(function(){
+const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+
+/* ---- copy buttons and OS tabs ---- */
+function addCopy(el){
+  const b=document.createElement('button');b.className='copy';b.type='button';b.textContent='コピー';
+  b.onclick=()=>{const t=el.firstChild.nodeValue.trim();
+    (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>{b.textContent='✓ コピー済み';b.classList.add('done');setTimeout(()=>{b.textContent='コピー';b.classList.remove('done');},1600);}).catch(()=>{b.textContent='選択してコピー';});};
+  el.appendChild(b);
+}
+document.querySelectorAll('.code').forEach(addCopy);
+const INSTALL={mac:'npm install -g photosort',win:'npm install -g photosort',linux:'sudo npm install -g photosort'};
+const ic=document.getElementById('install-code');
+document.querySelectorAll('.ostabs button').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.ostabs button').forEach(x=>x.setAttribute('aria-selected',x===t));
+  ic.firstChild.nodeValue=INSTALL[t.dataset.os];
+});
+
+/* ---- data: replace these for a new manual ---- */
+// NODES: id, x, y (center), w, label, sub. EDGES: from, to.
+const NODES=[
+  {id:'i',x:110,y:80,w:180,label:'インストール',sub:'npm install'},
+  {id:'d',x:330,y:80,w:180,label:'試しに実行',sub:'--dry-run'},
+  {id:'r',x:560,y:80,w:200,label:'撮影日を読む',sub:'EXIF'},
+  {id:'m',x:560,y:220,w:200,label:'年/月へ移動',sub:'2026/04/'},
+  {id:'z',x:800,y:220,w:150,label:'完了',sub:'128枚'},
+];
+const EDGES=[['i','d'],['d','r'],['r','m'],['m','z']];
+// FRAMES: one terminal line per frame. st = state of each node: 0 idle, 1 running, 2 done.
+const FRAMES=[
+  {line:['cmd','npm install -g photosort'],cap:'① インストールする',st:{i:1}},
+  {line:['ok','added 1 package in 3s'],cap:'<span class="ok">この表示が出れば成功</span>',st:{i:2}},
+  {line:['cmd','photosort ~/Pictures/inbox --dry-run'],cap:'② まず試しに実行する（ファイルは動かない）',st:{i:2,d:1}},
+  {line:['out','IMG_0012.jpg  2026-04-12  → 2026/04/'],cap:'1枚ずつ撮影日を読んで、行き先を決める',st:{i:2,d:1,r:1}},
+  {line:['out','… 128 枚を 3 フォルダへ移動する予定'],cap:'予定を確認する。まだ何も動いていない',st:{i:2,d:2,r:2}},
+  {line:['cmd','photosort ~/Pictures/inbox'],cap:'③ 問題なければ、本番で実行する',st:{i:2,d:2,r:1,m:1}},
+  {line:['ok','✓ 128 枚を 2026/03〜05 へ移動しました'],cap:'<span class="ok">年/月のフォルダができれば完了</span>',st:{i:2,d:2,r:2,m:2,z:2}},
+  {line:['note','間違えたら photosort undo で直前の1回を戻せる'],cap:'戻し方は下の「ルール3」',st:{i:2,d:2,r:2,m:2,z:2}},
+];
+
+/* ---- graph ---- */
+const NM={};NODES.forEach(n=>NM[n.id]=n);
+const K=['idle','run','done'];
+function clip(n,px,py){const dx=px-n.x,dy=py-n.y;const s=1/Math.max(Math.abs(dx)/(n.w/2+4),Math.abs(dy)/(32+4));return[n.x+dx*s,n.y+dy*s];}
+const svg=document.getElementById('qg'),gs=document.getElementById('gscroll');
+function drawGraph(f){
+  const st=FRAMES[f].st,prev=f>0?FRAMES[f-1].st:{};
+  let h=`<defs>${K.map(k=>`<marker id="ah-${k}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0L10,5L0,10z" class="ah-${k}"/></marker>`).join('')}</defs>`;
+  EDGES.forEach(([a,b])=>{const A=NM[a],B=NM[b];const p=clip(A,B.x,B.y),q=clip(B,A.x,A.y);
+    const k=(st[b]||0)===2?'done':(st[b]||0)===1?'run':'idle';
+    h+=`<g class="eg ${k}"><path d="M${p[0]},${p[1]} L${q[0]},${q[1]}" marker-end="url(#ah-${k})"/></g>`;});
+  NODES.forEach(n=>{const s=st[n.id]||0;const isNew=s!==(prev[n.id]||0)&&!reduce;
+    h+=`<g class="nd ${K[s]}${isNew?' new':''}" data-id="${n.id}"><rect class="halo" x="${n.x-n.w/2-7}" y="${n.y-39}" width="${n.w+14}" height="78" rx="18"/><rect class="b" x="${n.x-n.w/2}" y="${n.y-32}" width="${n.w}" height="64" rx="14"/><text class="t" x="${n.x}" y="${n.y-3}" text-anchor="middle">${esc(n.label)}</text><text class="s" x="${n.x}" y="${n.y+20}" text-anchor="middle">${esc(n.sub)}</text></g>`;});
+  svg.innerHTML=h;
+  // On narrow screens, keep the running step in view.
+  const run=svg.querySelector('.nd.run')||svg.querySelector('.nd.done:last-of-type');
+  if(run&&gs.scrollWidth>gs.clientWidth){const r=run.getBoundingClientRect(),g=gs.getBoundingClientRect();gs.scrollLeft+=r.left+r.width/2-(g.left+g.width/2);}
+}
+
+/* ---- terminal ---- */
+const term=document.getElementById('q-term');let lastF=-1;
+function renderTerm(f){
+  const line=(m,old)=>`<div class="ln ${m[0]}" style="${old?'animation:none':''}">${esc(m[1])}</div>`;
+  if(f===lastF+1)term.insertAdjacentHTML('beforeend',line(FRAMES[f].line,false));
+  else term.innerHTML=FRAMES.slice(0,f+1).map(x=>line(x.line,true)).join('');
+  lastF=f;requestAnimationFrame(()=>{term.scrollTop=term.scrollHeight;});
+}
+
+/* ---- player (video-style bar) ---- */
+function player(n,render,interval){
+  let cur=0,timer=null;
+  const prev=document.getElementById('q-prev'),next=document.getElementById('q-next'),play=document.getElementById('q-play'),bar=document.getElementById('q-scrub');
+  bar.className='scrub';bar.setAttribute('role','slider');bar.setAttribute('aria-label','再生位置');bar.tabIndex=0;
+  bar.innerHTML='<div class="rail"><div class="fill"></div><div class="knob"></div></div><span class="time"></span>';
+  const fill=bar.querySelector('.fill'),knob=bar.querySelector('.knob'),time=bar.querySelector('.time'),rail=bar.querySelector('.rail');
+  const fmt=ms=>{const t=Math.round(ms/1000);return `${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`;};
+  function pos(p,dur){const v=(Math.max(0,Math.min(1,p))*100)+'%';[fill,knob].forEach(el=>{el.style.transition=dur?`${el===fill?'width':'left'} ${dur}ms linear`:'none';});fill.style.width=v;knob.style.left=v;}
+  function go(i){cur=Math.max(0,Math.min(n-1,i));render(cur);prev.disabled=cur===0;next.disabled=cur===n-1;
+    time.textContent=`${fmt(cur*interval)} / ${fmt((n-1)*interval)}`;pos(cur/(n-1),0);
+    if(timer&&cur<n-1){void fill.offsetWidth;pos((cur+1)/(n-1),interval);}if(cur===n-1)stop();}
+  function stop(){if(timer){clearInterval(timer);timer=null;}play.textContent='▶ 再生';pos(cur/(n-1),0);}
+  function start(){if(cur===n-1)go(0);timer=setInterval(()=>go(cur+1),interval);play.textContent='❚❚ 一時停止';void fill.offsetWidth;pos((cur+1)/(n-1),interval);}
+  prev.onclick=()=>{stop();go(cur-1);};next.onclick=()=>{stop();go(cur+1);};play.onclick=()=>timer?stop():start();
+  let drag=false;const seek=e=>{const r=rail.getBoundingClientRect();const i=Math.round(Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*(n-1));if(i!==cur)go(i);};
+  bar.addEventListener('pointerdown',e=>{drag=true;stop();try{bar.setPointerCapture(e.pointerId);}catch(_){}seek(e);});
+  bar.addEventListener('pointermove',e=>{if(drag)seek(e);});bar.addEventListener('pointerup',()=>{drag=false;});
+  bar.addEventListener('keydown',e=>{if(e.key==='ArrowRight'){stop();go(cur+1);}if(e.key==='ArrowLeft'){stop();go(cur-1);}});
+  go(0);
+}
+const cap=document.getElementById('q-cap');
+player(FRAMES.length,f=>{drawGraph(f);renderTerm(f);cap.innerHTML=FRAMES[f].cap;},2300);
+})();
+</script>
