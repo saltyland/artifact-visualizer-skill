@@ -3,7 +3,15 @@
 **読まなくても、見れば分かるページを作る Claude Code / Claude 用スキル。**
 README を渡すだけで「世界一わかりやすい説明書」も作れます。
 
+![README を渡すと、見れば分かる説明書になる](docs/images/01-hero.png)
+
 > A skill for Claude that builds white-based, diagram-first, animated HTML pages. Press ▶ and watch one thing change at a time. It also turns a README, docs, or a codebase into an easy-to-follow manual.
+
+| しくみ：図とやりとりが1コマずつ進む | できあがる説明書の例（架空の CLI） |
+|---|---|
+| ![README から説明書ができるまでの6段](docs/images/02-how-it-works.png) | ![photosort の説明書。流れ図とターミナルが同期して進む](docs/images/03-manual-example.png) |
+
+<sub>上の画像は、このスキル自身で作った紹介ページのスクリーンショットです。</sub>
 
 ## 何ができるか
 
